@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Trajet - CarGest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> CarGest
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li><a href="{{ url_for('liste_vehicules') }}">Véhicules</a></li>
+                <li><a href="{{ url_for('liste_conducteurs') }}">Conducteurs</a></li>
+                <li><a href="{{ url_for('liste_maintenances') }}">Maintenance</a></li>
+                <li><a href="{{ url_for('liste_trajets') }}" class="active">Trajets</a></li>
+                <li><a href="{{ url_for('rapports') }}">Rapports</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="page-header">
+            <div class="container">
+                <h1><i class="fa-solid fa-route"></i> Ajouter un Trajet</h1>
+                <p>Enregistrez un nouveau trajet effectué</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Informations du Trajet</h2>
+                        <a href="{{ url_for('liste_trajets') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
+
+                    <form method="POST" class="form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicule_id">
+                                    <i class="fa-solid fa-car"></i> Véhicule *
+                                </label>
+                                <select id="vehicule_id" name="vehicule_id" required>
+                                    <option value="">Sélectionnez un véhicule</option>
+                                    {% for vehicule in vehicules %}
+                                        {% if vehicule.statut == 'Disponible' %}
+                                            <option value="{{ vehicule.id }}">
+                                                {{ vehicule.immatriculation }} - {{ vehicule.marque }} {{ vehicule.modele }}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="conducteur_id">
+                                    <i class="fa-solid fa-user"></i> Conducteur *
+                                </label>
+                                <select id="conducteur_id" name="conducteur_id" required>
+                                    <option value="">Sélectionnez un conducteur</option>
+                                    {% for conducteur in conducteurs %}
+                                        <option value="{{ conducteur.id }}">
+                                            {{ conducteur.nom }} {{ conducteur.prenom }} - {{ conducteur.permis }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="depart">
+                                    <i class="fa-solid fa-map-marker-alt"></i> Lieu de Départ *
+                                </label>
+                                <input type="text" id="depart" name="depart" required
+                                       placeholder="Ex: Dakar, Plateau">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="arrivee">
+                                    <i class="fa-solid fa-flag-checkered"></i> Lieu d'Arrivée *
+                                </label>
+                                <input type="text" id="arrivee" name="arrivee" required
+                                       placeholder="Ex: Thiès, Centre-ville">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="distance">
+                                    <i class="fa-solid fa-road"></i> Distance (km) *
+                                </label>
+                                <input type="number" id="distance" name="distance" step="0.1" min="0.1" required
+                                       placeholder="Ex: 75.5">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="duree">
+                                    <i class="fa-solid fa-clock"></i> Durée (minutes) *
+                                </label>
+                                <input type="number" id="duree" name="duree" min="1" required
+                                       placeholder="Ex: 90">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date_trajet">
+                                <i class="fa-solid fa-calendar"></i> Date du Trajet *
+                            </label>
+                            <input type="date" id="date_trajet" name="date_trajet" required
+                                   value="{{ date.today() if date else '' }}">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-save"></i> Enregistrer le trajet
+                            </button>
+                            <a href="{{ url_for('liste_trajets') }}" class="btn btn-secondary">
+                                <i class="fa-solid fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Informations utiles -->
+                    <div class="info-box">
+                        <h3><i class="fa-solid fa-info-circle"></i> Informations importantes</h3>
+                        <ul>
+                            <li>Seuls les véhicules disponibles sont affichés dans la liste</li>
+                            <li>La distance doit être saisie en kilomètres avec décimales si nécessaire</li>
+                            <li>La durée doit être saisie en minutes</li>
+                            <li>Tous les champs marqués d'un * sont obligatoires</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CarGest - Projet Python de Gestion de Flotte</p>
+            <p>Développé par SARR et SEYE pour votre cours de Python</p>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-calculer la durée approximative basée sur la distance
+        document.getElementById('distance').addEventListener('input', function() {
+            const distance = parseFloat(this.value);
+            if (distance > 0) {
+                // Estimation: 50 km/h moyenne en ville, 80 km/h sur route
+                const dureeEstimee = Math.round(distance * 1.2); // 1.2 min par km (50 km/h)
+                const dureeField = document.getElementById('duree');
+                if (!dureeField.value) {
+                    dureeField.value = dureeEstimee;
+                }
+            }
+        });
+
+        // Validation du formulaire
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const vehiculeId = document.getElementById('vehicule_id').value;
+            const conducteurId = document.getElementById('conducteur_id').value;
+
+            if (!vehiculeId) {
+                e.preventDefault();
+                alert('Veuillez sélectionner un véhicule');
+                return;
+            }
+
+            if (!conducteurId) {
+                e.preventDefault();
+                alert('Veuillez sélectionner un conducteur');
+                return;
+            }
+        });
+
+        // Définir la date maximale à aujourd'hui
+        document.getElementById('date_trajet').max = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>

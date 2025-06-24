@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier une Maintenance - CarGest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> CarGest
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li><a href="{{ url_for('liste_vehicules') }}">Véhicules</a></li>
+                <li><a href="{{ url_for('liste_conducteurs') }}">Conducteurs</a></li>
+                <li><a href="{{ url_for('liste_maintenances') }}" class="active">Maintenance</a></li>
+                <li><a href="{{ url_for('liste_trajets') }}">Trajets</a></li>
+                <li><a href="{{ url_for('rapports') }}">Rapports</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="page-header">
+            <div class="container">
+                <h1><i class="fa-solid fa-edit"></i> Modifier la Maintenance</h1>
+                <p>Modifiez les informations de la maintenance #{{ maintenance.id }}</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Modification de la Maintenance</h2>
+                        <a href="{{ url_for('liste_maintenances') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
+
+                    <form method="POST" class="form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicule_id">
+                                    <i class="fa-solid fa-car"></i> Véhicule *
+                                </label>
+                                <select id="vehicule_id" name="vehicule_id" required>
+                                    <option value="">Sélectionnez un véhicule</option>
+                                    {% for vehicule in vehicules %}
+                                        <option value="{{ vehicule.id }}"
+                                                {% if vehicule.id == maintenance.vehicule_id %}selected{% endif %}>
+                                            {{ vehicule.immatriculation }} - {{ vehicule.marque }} {{ vehicule.modele }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="type_maintenance">
+                                    <i class="fa-solid fa-cog"></i> Type de Maintenance *
+                                </label>
+                                <select id="type_maintenance" name="type_maintenance" required>
+                                    <option value="">Sélectionnez le type</option>
+                                    <option value="Vidange" {% if maintenance.type_maintenance == 'Vidange' %}selected{% endif %}>Vidange</option>
+                                    <option value="Révision" {% if maintenance.type_maintenance == 'Révision' %}selected{% endif %}>Révision</option>
+                                    <option value="Pneus" {% if maintenance.type_maintenance == 'Pneus' %}selected{% endif %}>Pneus</option>
+                                    <option value="Freins" {% if maintenance.type_maintenance == 'Freins' %}selected{% endif %}>Freins</option>
+                                    <option value="Batterie" {% if maintenance.type_maintenance == 'Batterie' %}selected{% endif %}>Batterie</option>
+                                    <option value="Climatisation" {% if maintenance.type_maintenance == 'Climatisation' %}selected{% endif %}>Climatisation</option>
+                                    <option value="Carrosserie" {% if maintenance.type_maintenance == 'Carrosserie' %}selected{% endif %}>Carrosserie</option>
+                                    <option value="Contrôle technique" {% if maintenance.type_maintenance == 'Contrôle technique' %}selected{% endif %}>Contrôle technique</option>
+                                    <option value="Autre" {% if maintenance.type_maintenance == 'Autre' %}selected{% endif %}>Autre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">
+                                <i class="fa-solid fa-file-text"></i> Description *
+                            </label>
+                            <textarea id="description" name="description" rows="4" required
+                                      placeholder="Décrivez les travaux à effectuer...">{{ maintenance.description }}</textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cout">
+                                    <i class="fa-solid fa-euro-sign"></i> Coût (FCFA) *
+                                </label>
+                                <input type="number" id="cout" name="cout" step="0.01" min="0" required
+                                       value="{{ maintenance.cout }}" placeholder="Ex: 50000">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="date_maintenance">
+                                    <i class="fa-solid fa-calendar"></i> Date prévue *
+                                </label>
+                                <input type="date" id="date_maintenance" name="date_maintenance" required
+                                       value="{{ maintenance.date_maintenance.strftime('%Y-%m-%d') }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="statut">
+                                <i class="fa-solid fa-info-circle"></i> Statut *
+                            </label>
+                            <select id="statut" name="statut" required>
+                                <option value="Programmée" {% if maintenance.statut == 'Programmée' %}selected{% endif %}>Programmée</option>
+                                <option value="En cours" {% if maintenance.statut == 'En cours' %}selected{% endif %}>En cours</option>
+                                <option value="Terminée" {% if maintenance.statut == 'Terminée' %}selected{% endif %}>Terminée</option>
+                                <option value="Annulée" {% if maintenance.statut == 'Annulée' %}selected{% endif %}>Annulée</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-save"></i> Enregistrer les modifications
+                            </button>
+                            <a href="{{ url_for('liste_maintenances') }}" class="btn btn-secondary">
+                                <i class="fa-solid fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Informations supplémentaires -->
+                <div class="info-box" style="margin-top: 2rem;">
+                    <h3><i class="fa-solid fa-info-circle"></i> Informations sur cette maintenance</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>ID de la maintenance :</strong> {{ maintenance.id }}
+                        </div>
+                        <div class="info-item">
+                            <strong>Statut actuel :</strong>
+                            <span class="badge badge-{{ 'warning' if maintenance.statut == 'Programmée' else 'success' if maintenance.statut == 'Terminée' else 'danger' }}">
+                                {{ maintenance.statut }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CarGest - Projet Python de Gestion de Flotte</p>
+            <p>Développé par SARR et SEYE pour votre cours de Python</p>
+        </div>
+    </footer>
+</body>
+</html>

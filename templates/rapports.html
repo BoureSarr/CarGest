@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapports - CarGest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> CarGest
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li><a href="{{ url_for('liste_vehicules') }}">Véhicules</a></li>
+                <li><a href="{{ url_for('liste_conducteurs') }}">Conducteurs</a></li>
+                <li><a href="{{ url_for('liste_maintenances') }}">Maintenance</a></li>
+                <li><a href="{{ url_for('liste_trajets') }}">Trajets</a></li>
+                <li><a href="{{ url_for('rapports') }}" class="active">Rapports</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="page-header">
+            <div class="container">
+                <h1><i class="fa-solid fa-chart-bar"></i> Rapports et Statistiques</h1>
+                <p>Analysez les performances de votre flotte de véhicules</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <!-- Statistiques principales -->
+                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Distance Totale</h3>
+                            <div class="stat-value">{{ "{:,.0f}".format(stats.total_distance) }} km</div>
+                            <div class="stat-description">Parcourue par tous les véhicules</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Coût de Maintenance</h3>
+                            <div class="stat-value">{{ "{:,.0f}".format(stats.cout_maintenance) }} FCFA</div>
+                            <div class="stat-description">Total des frais de maintenance</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Nombre de Trajets</h3>
+                            <div class="stat-value">{{ stats.nb_trajets }}</div>
+                            <div class="stat-description">Trajets effectués au total</div>
+                        </div>
+                    </div>
+
+                    {% if stats.vehicule_plus_utilise %}
+                    <div class="stat-card highlight">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Véhicule le Plus Utilisé</h3>
+                            <div class="stat-value">{{ stats.vehicule_plus_utilise.marque }} {{ stats.vehicule_plus_utilise.modele }}</div>
+                            <div class="stat-description">{{ stats.vehicule_plus_utilise.immatriculation }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Section d'analyse détaillée -->
+                <div class="analysis-section">
+                    <h2><i class="fa-solid fa-magnifying-glass"></i> Analyse Détaillée</h2>
+
+                    {% if stats.nb_trajets > 0 %}
+                        <div class="analysis-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                            <div class="analysis-card">
+                                <h3><i class="fa-solid fa-calculator"></i> Moyennes</h3>
+                                <div class="metric-list">
+                                    <div class="metric-item">
+                                        <span class="metric-label">Distance moyenne par trajet :</span>
+                                        <span class="metric-value">{{ "{:.1f}".format(stats.total_distance / stats.nb_trajets) }} km</span>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">Coût moyen de maintenance :</span>
+                                        <span class="metric-value">{{ "{:,.0f}".format(stats.cout_maintenance / (vehicules|length) if vehicules else 0) }} FCFA/véhicule</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="analysis-card">
+                                <h3><i class="fa-solid fa-chart-line"></i> Performance</h3>
+                                <div class="metric-list">
+                                    <div class="metric-item">
+                                        <span class="metric-label">Efficacité flotte :</span>
+                                        <span class="metric-value badge badge-{{ 'success' if stats.total_distance > 1000 else 'warning' }}">
+                                            {{ 'Excellente' if stats.total_distance > 5000 else 'Bonne' if stats.total_distance > 1000 else 'À améliorer' }}
+                                        </span>
+                                    </div>
+                                    <div class="metric-item">
+                                        <span class="metric-label">Ratio maintenance/km :</span>
+                                        <span class="metric-value">{{ "{:.2f}".format(stats.cout_maintenance / stats.total_distance if stats.total_distance > 0 else 0) }} FCFA/km</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-chart-bar" style="font-size: 4rem; color: #ccc;"></i>
+                            <h3>Aucune donnée de trajet disponible</h3>
+                            <p>Commencez par enregistrer des trajets pour voir les analyses détaillées.</p>
+                            <a href="{{ url_for('ajouter_trajet') }}" class="btn">
+                                <i class="fa-solid fa-plus"></i> Ajouter un trajet
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions de rapport -->
+                <div class="report-actions" style="margin-top: 3rem; text-align: center;">
+                    <button class="btn" onclick="window.print()">
+                        <i class="fa-solid fa-print"></i> Imprimer le rapport
+                    </button>
+                    <button class="btn btn-secondary" onclick="location.reload()">
+                        <i class="fa-solid fa-refresh"></i> Actualiser les données
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CarGest - Projet Python de Gestion de Flotte</p>
+            <p>Développé par SARR et SEYE pour votre cours de Python</p>
+        </div>
+    </footer>
+
+    <style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-card.highlight {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .stat-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        width: 80px;
+        text-align: center;
+    }
+
+    .stat-card.highlight .stat-icon {
+        color: white;
+    }
+
+    .stat-content h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        opacity: 0.8;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-description {
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+    .analysis-section {
+        margin-top: 3rem;
+    }
+
+    .analysis-section h2 {
+        margin-bottom: 2rem;
+        color: var(--primary-color);
+    }
+
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .analysis-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .analysis-card h3 {
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+    }
+
+    .metric-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .metric-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .metric-item:last-child {
+        border-bottom: none;
+    }
+
+    .metric-label {
+        font-weight: 500;
+    }
+
+    .metric-value {
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+
+    .report-actions {
+        margin-top: 3rem;
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    .report-actions .btn {
+        margin: 0 0.5rem;
+    }
+
+    @media print {
+        .report-actions, header, footer {
+            display: none;
+        }
+
+        .stat-card {
+            break-inside: avoid;
+            margin-bottom: 1rem;
+        }
+    }
+    </style>
+</body>
+</html>

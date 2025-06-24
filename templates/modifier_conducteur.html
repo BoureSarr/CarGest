@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Conducteur – CarGest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> CarGest
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li><a href="{{ url_for('liste_vehicules') }}">Véhicules</a></li>
+                <li><a href="{{ url_for('liste_conducteurs') }}" class="active">Conducteurs</a></li>
+                <li><a href="{{ url_for('liste_maintenances') }}">Maintenance</a></li>
+                <li><a href="{{ url_for('liste_trajets') }}">Trajets</a></li>
+                <li><a href="{{ url_for('rapports') }}">Rapports</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="page-header">
+            <div class="container">
+                <h1><i class="fa-solid fa-user"></i> Modifier un conducteur</h1>
+                <p>Modifiez les informations du conducteur sélectionné</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <form action="{{ url_for('modifier_conducteur', id=conducteur.id) }}" method="POST" class="form">
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" name="nom" value="{{ conducteur.nom }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Prénom</label>
+                        <input type="text" name="prenom" value="{{ conducteur.prenom }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>N° de permis</label>
+                        <input type="text" name="permis" value="{{ conducteur.permis }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Téléphone</label>
+                        <input type="text" name="telephone" value="{{ conducteur.telephone }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ conducteur.email }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Expérience (années)</label>
+                        <input type="number" name="experience" value="{{ conducteur.experience }}" min="0" required>
+                    </div>
+                    <button type="submit" class="btn"><i class="fa-solid fa-save"></i> Enregistrer</button>
+                    <a href="{{ url_for('liste_conducteurs') }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Retour</a>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CarGest – Projet Python de Gestion de Flotte</p>
+            <p>Développé par SARR et SEYE pour votre cours de Python</p>
+        </div>
+    </footer>
+</body>
+</html>

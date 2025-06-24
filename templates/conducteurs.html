@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conducteurs - CarGest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> CarGest
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li><a href="{{ url_for('liste_vehicules') }}">Véhicules</a></li>
+                <li><a href="{{ url_for('liste_conducteurs') }}" class="active">Conducteurs</a></li>
+                <li><a href="{{ url_for('liste_maintenances') }}">Maintenance</a></li>
+                <li><a href="{{ url_for('liste_trajets') }}">Trajets</a></li>
+                <li><a href="{{ url_for('rapports') }}">Rapports</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="page-header">
+            <div class="container">
+                <h1><i class="fa-solid fa-users"></i> Gestion des Conducteurs</h1>
+                <p>Gérez votre équipe de conducteurs</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Liste des Conducteurs ({{ conducteurs|length }})</h2>
+                    <a href="{{ url_for('ajouter_conducteur') }}" class="btn">
+                        <i class="fa-solid fa-user-plus"></i> Ajouter un conducteur
+                    </a>
+                </div>
+
+                {% if conducteurs %}
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom Complet</th>
+                                    <th>Permis</th>
+                                    <th>Téléphone</th>
+                                    <th>Email</th>
+                                    <th>Expérience</th>
+                                    <th>Véhicule Assigné</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for conducteur in conducteurs %}
+                                <tr>
+                                    <td>{{ conducteur.id }}</td>
+                                    <td>
+                                        <strong>{{ conducteur.prenom }} {{ conducteur.nom }}</strong>
+                                    </td>
+                                    <td>{{ conducteur.permis }}</td>
+                                    <td>{{ conducteur.telephone }}</td>
+                                    <td>{{ conducteur.email }}</td>
+                                    <td>{{ conducteur.experience }} ans</td>
+                                    <td>
+                                        {% if conducteur.vehicule_assigne %}
+                                            <span class="badge badge-success">{{ conducteur.vehicule_assigne }}</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Non assigné</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('modifier_conducteur', id=conducteur.id) }}" class="btn btn-sm">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                        <a href="{{ url_for('supprimer_conducteur', id=conducteur.id) }}"
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce conducteur ?')">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-users" style="font-size: 4rem; color: #ccc;"></i>
+                        <h3>Aucun conducteur trouvé</h3>
+                        <p>Commencez par ajouter votre premier conducteur.</p>
+
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CarGest - Projet Python de Gestion de Flotte</p>
+            <p>Développé par SARR et SEYE pour votre cours de Python</p>
+        </div>
+    </footer>
+</body>
+</html>

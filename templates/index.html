@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarGest - Gestion de Flotte de Véhicules</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> CarGest
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li><a href="{{ url_for('liste_vehicules') }}">Véhicules</a></li>
+                <li><a href="{{ url_for('liste_conducteurs') }}">Conducteurs</a></li>
+                <li><a href="{{ url_for('liste_maintenances') }}">Maintenance</a></li>
+                <li><a href="{{ url_for('liste_trajets') }}">Trajets</a></li>
+                <li><a href="{{ url_for('rapports') }}">Rapports</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Messages flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h1>Gestion de Flotte Simplifiée</h1>
+                <p>Optimisez la gestion de vos véhicules, conducteurs et maintenance avec notre solution complète</p>
+                <a href="#dashboard" class="cta-button">Voir le tableau de bord</a>
+            </div>
+        </section>
+
+        <!-- Tableau de bord -->
+        <section id="dashboard" class="dashboard">
+            <div class="container">
+                <h2>Tableau de Bord</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-icon">🚗</div>
+                        <div class="card-content">
+                            <h3>{{ stats.total_vehicules }}</h3>
+                            <p>Véhicules Total</p>
+                            <small>{{ stats.vehicules_disponibles }} disponibles</small>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-icon">👨‍💼</div>
+                        <div class="card-content">
+                            <h3>{{ stats.total_conducteurs }}</h3>
+                            <p>Conducteurs</p>
+                            <small>Actifs</small>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-icon">🔧</div>
+                        <div class="card-content">
+                            <h3>{{ stats.maintenances_programmees }}</h3>
+                            <p>Maintenances</p>
+                            <small>Programmées</small>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-icon">📊</div>
+                        <div class="card-content">
+                            <h3>Suivi</h3>
+                            <p>Temps Réel</p>
+                            <small>Mis à jour</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Actions rapides -->
+        <section class="quick-actions">
+            <div class="container">
+                <h2>Actions Rapides</h2>
+                <div class="actions-grid">
+                    <a href="{{ url_for('ajouter_vehicule') }}" class="action-card">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Ajouter Véhicule</span>
+                    </a>
+                    <a href="{{ url_for('ajouter_conducteur') }}" class="action-card">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Ajouter Conducteur</span>
+                    </a>
+                    <a href="{{ url_for('ajouter_maintenance') }}" class="action-card">
+                        <i class="fa-solid fa-tools"></i>
+                        <span>Programmer Maintenance</span>
+                    </a>
+                    <a href="{{ url_for('ajouter_trajet') }}" class="action-card">
+                        <i class="fa-solid fa-route"></i>
+                        <span>Enregistrer Trajet</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Fonctionnalités Principales</h2>
+                <p class="features-subtitle">Tous les outils dont vous avez besoin pour gérer efficacement votre flotte</p>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🚗</div>
+                        <h3>Gestion des Véhicules</h3>
+                        <p>Suivi complet de votre parc automobile : immatriculation, kilométrage, état, assurances et plus encore.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">👨‍💼</div>
+                        <h3>Gestion des Conducteurs</h3>
+                        <p>Base de données complète des chauffeurs avec permis, expérience et assignation des véhicules.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🗺️</div>
+                        <h3>Suivi des Itinéraires</h3>
+                        <p>Enregistrement et analyse des trajets effectués avec calcul des distances et durées.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>Maintenance Préventive</h3>
+                        <p>Planification automatique des révisions et suivi de l'historique des réparations.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">⛽</div>
+                        <h3>Gestion des Coûts</h3>
+                        <p>Suivi détaillé des dépenses : carburant, réparations, assurances et amortissement.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Rapports & Analytics</h3>
+                        <p>Tableaux de bord interactifs et rapports détaillés pour optimiser vos opérations.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CarGest - Projet Python de Gestion de Flotte</p>
+            <p>Développé par SARR et SEYE pour votre cours de Python</p>
+        </div>
+    </footer>
+
+    <script>
+        // Animation au défilement
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation des éléments au chargement
+            const heroContent = document.querySelector('.hero');
+            heroContent.style.opacity = '0';
+            setTimeout(() => {
+                heroContent.style.transition = 'opacity 1s ease';
+                heroContent.style.opacity = '1';
+            }, 300);
+
+            // Animation au défilement
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate');
+                    }
+                });
+            }, observerOptions);
+
+            // Observer les sections
+            document.querySelectorAll('.dashboard-grid, .actions-grid, .features-grid').forEach(section => {
+                section.style.opacity = '0';
+                observer.observe(section);
+            });
+
+            // Animation des cartes au survol
+            const cards = document.querySelectorAll('.dashboard-card, .action-card, .feature-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-10px)';
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Mise à jour des statistiques en temps réel
+            function updateStats() {
+                fetch('/api/stats')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Stats mises à jour:', data);
+                    })
+                    .catch(error => console.error('Erreur:', error));
+            }
+
+            // Mettre à jour toutes les 30 secondes
+            setInterval(updateStats, 30000);
+
+            // Fermer les messages flash après 5 secondes
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trajets - CarGest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> CarGest
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                <li><a href="{{ url_for('liste_vehicules') }}">Véhicules</a></li>
+                <li><a href="{{ url_for('liste_conducteurs') }}">Conducteurs</a></li>
+                <li><a href="{{ url_for('liste_maintenances') }}">Maintenance</a></li>
+                <li><a href="{{ url_for('liste_trajets') }}" class="active">Trajets</a></li>
+                <li><a href="{{ url_for('rapports') }}">Rapports</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?')">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="page-header">
+            <div class="container">
+                <h1><i class="fa-solid fa-route"></i> Gestion des Trajets</h1>
+                <p>Suivez et gérez tous les trajets de votre flotte</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Liste des Trajets ({{ trajets|length }})</h2>
+                    <a href="{{ url_for('ajouter_trajet') }}" class="btn">
+                        <i class="fa-solid fa-plus"></i> Ajouter un trajet
+                    </a>
+                </div>
+
+                {% if trajets %}
+                    <!-- Statistiques rapides -->
+                    <div class="stats-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-road"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ "{:,.0f}".format(trajets|sum(attribute='distance')) }} km</h3>
+                                <p>Distance totale</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ "{:,}".format(trajets|sum(attribute='duree')) }} min</h3>
+                                <p>Temps total</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-calendar"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>{{ trajets|length }}</h3>
+                                <p>Trajets enregistrés</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Véhicule</th>
+                                    <th>Conducteur</th>
+                                    <th>Itinéraire</th>
+                                    <th>Distance</th>
+                                    <th>Durée</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trajet in trajets %}
+                                <tr>
+                                    <td><strong>#{{ trajet.id }}</strong></td>
+                                    <td>
+                                        {% set vehicule = vehicules|selectattr('id', 'equalto', trajet.vehicule_id)|first %}
+                                        {% if vehicule %}
+                                            <div class="vehicle-info">
+                                                <strong>{{ vehicule.immatriculation }}</strong>
+                                                <small>{{ vehicule.marque }} {{ vehicule.modele }}</small>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">Véhicule introuvable</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% set conducteur = conducteurs|selectattr('id', 'equalto', trajet.conducteur_id)|first %}
+                                        {% if conducteur %}
+                                            <div class="driver-info">
+                                                <strong>{{ conducteur.prenom }} {{ conducteur.nom }}</strong>
+                                                <small>{{ conducteur.telephone }}</small>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">Conducteur introuvable</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="route-info">
+                                            <div class="route-item">
+                                                <i class="fa-solid fa-circle-dot" style="color: #28a745;"></i>
+                                                <strong>{{ trajet.depart }}</strong>
+                                            </div>
+                                            <div class="route-arrow">
+                                                <i class="fa-solid fa-arrow-down" style="color: #6c757d;"></i>
+                                            </div>
+                                            <div class="route-item">
+                                                <i class="fa-solid fa-location-dot" style="color: #dc3545;"></i>
+                                                <strong>{{ trajet.arrivee }}</strong>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="distance-badge">
+                                            <i class="fa-solid fa-road"></i>
+                                            {{ "{:,.1f}".format(trajet.distance) }} km
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="duration-badge">
+                                            <i class="fa-solid fa-clock"></i>
+                                            {% set hours = trajet.duree // 60 %}
+                                            {% set minutes = trajet.duree % 60 %}
+                                            {% if hours > 0 %}{{ hours }}h{% endif %}
+                                            {% if minutes > 0 %}{{ minutes }}min{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            {% if trajet.date_trajet is string %}
+                                                <strong>{{ trajet.date_trajet }}</strong>
+                                                <small>Date</small>
+                                            {% else %}
+                                                <strong>{{ trajet.date_trajet.strftime('%d/%m/%Y') }}</strong>
+                                                <small>{{ trajet.date_trajet.strftime('%A') }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="{{ url_for('modifier_trajet', id=trajet.id) }}"
+                                               class="btn btn-sm" title="Modifier">
+                                                <i class="fa-solid fa-edit"></i>
+                                            </a>
+                                            <a href="{{ url_for('supprimer_trajet', id=trajet.id) }}"
+                                               class="btn btn-danger btn-sm" title="Supprimer"
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce trajet ?')">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-route" style="font-size: 4rem; color: #ccc;"></i>
+                        <h3>Aucun trajet enregistré</h3>
+                        <p>Commencez par enregistrer le premier trajet de votre flotte.</p>
+
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 CarGest - Projet Python de Gestion de Flotte</p>
+            <p>Développé par SARR et SEYE pour votre cours de Python</p>
+        </div>
+    </footer>
+
+    <style>
+        .stats-cards {
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: #007bff;
+            width: 60px;
+            text-align: center;
+        }
+
+        .stat-info h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .stat-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .vehicle-info, .driver-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .vehicle-info small, .driver-info small {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .route-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .route-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .route-arrow {
+            text-align: center;
+            margin: 0.1rem 0;
+        }
+
+        .distance-badge, .duration-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.25rem 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .distance-badge i {
+            color: #007bff;
+        }
+
+        .duration-badge i {
+            color: #28a745;
+        }
+
+        .date-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .date-info small {
+            color: #666;
+            font-size: 0.8rem;
+            text-transform: capitalize;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
+</body>
+</html>

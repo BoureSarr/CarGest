@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@cargest.com",
+    "password": "scrypt:32768:8:1$J5v5G5HNUuklk6Az$6bb328b71a6b442b4a16e2f11020ce93b764197a68eb3262ef9d13de447b226088c9e9ee77786471beca1a6577fa3fb95a8b3857640e25fe88c5b6a436015806",
+    "role": "admin",
+    "nom": "Administrateur",
+    "prenom": "Système"
+  },
+  {
+    "id": 2,
+    "username": "BS20",
+    "email": "bouresarr2005@gmail.com",
+    "password": "scrypt:32768:8:1$4Ht2Be2zIrFMFjdA$a6a3487726cfa2552aad49112894d89eca0d60ba4981a41449be20dabf28c6160d1dd1ff1f25e5d65ff0d424a2e3839e647831f005623644a567bac83f5e6df0",
+    "role": "user",
+    "nom": "Sarr",
+    "prenom": "Bouré"
+  }
+]
