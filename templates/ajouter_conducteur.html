@@ -4,8 +4,464 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter un Conducteur - CarGest</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #ff4757, #ff3838) !important;
+            color: white !important;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeInUp 0.8s ease 0.4s both;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-header h2 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group label i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input:hover,
+        .form-group select:hover,
+        .form-group textarea:hover {
+            border-color: #b8c5d1;
+            transform: translateY(-1px);
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            z-index: 2;
+        }
+
+        .input-icon input {
+            padding-left: 45px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(0);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(149, 165, 166, 0.4);
+        }
+
+        .form-decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .form-decoration:nth-child(1) {
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .form-decoration:nth-child(2) {
+            bottom: -50px;
+            left: -50px;
+            animation-delay: 3s;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+            animation: slideInRight 0.5s ease;
+        }
+
+        .alert-success {
+            background: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            border-left-color: #27ae60;
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border-left-color: #e74c3c;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .form-container {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .validation-feedback {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .validation-feedback.show {
+            display: block;
+        }
+
+        .validation-feedback.valid {
+            color: #27ae60;
+        }
+
+        .validation-feedback.invalid {
+            color: #e74c3c;
+        }
+
+        input.valid {
+            border-color: #27ae60;
+        }
+
+        input.invalid {
+            border-color: #e74c3c;
+        }
+        footer {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 3rem 0 2rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #4ecdc4;
+            font-weight: 600;
+        }
+
+        .footer-section p,
+        .footer-section li {
+            opacity: 0.8;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #4ecdc4;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -16,15 +472,32 @@
             <ul class="nav-links">
                 <li><a href="{{ url_for('index') }}">Accueil</a></li>
                 <li><a href="{{ url_for('liste_vehicules') }}">Véhicules</a></li>
-                <li><a href="{{ url_for('liste_conducteurs') }}">Conducteurs</a></li>
+                <li><a href="{{ url_for('liste_conducteurs') }}" class="active">Conducteurs</a></li>
                 <li><a href="{{ url_for('liste_maintenances') }}">Maintenance</a></li>
                 <li><a href="{{ url_for('liste_trajets') }}">Trajets</a></li>
                 <li><a href="{{ url_for('rapports') }}">Rapports</a></li>
+                <li><a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    Déconnexion
+                </a></li>
             </ul>
         </nav>
     </header>
 
     <main>
+        <div class="flash-messages container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <i class="fa-solid fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
         <section class="page-header">
             <div class="container">
                 <h1><i class="fa-solid fa-user-plus"></i> Ajouter un Conducteur</h1>
@@ -35,47 +508,90 @@
         <section class="content-section">
             <div class="container">
                 <div class="form-container">
-                    <form method="POST">
-                        <div class="form-group">
-                            <label for="nom">Nom *</label>
-                            <input type="text" id="nom" name="nom" required>
-                        </div>
+                    <div class="form-decoration"></div>
+                    <div class="form-decoration"></div>
 
-                        <div class="form-group">
-                            <label for="prenom">Prénom *</label>
-                            <input type="text" id="prenom" name="prenom" required>
-                        </div>
+                    <div class="form-header">
+                        <h2>Informations du Conducteur</h2>
+                        <p class="subtitle">Saisissez les détails avec précision</p>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="permis">Numéro de Permis *</label>
-                            <input type="text" id="permis" name="permis"
-                                   placeholder="B123456" required>
-                        </div>
+                    <form id="driverForm" class="form" method="POST">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nom">
+                                    <i class="fa-solid fa-user"></i>
+                                    Nom *
+                                </label>
+                                <div class="input-icon">
+                                    <input type="text" id="nom" name="nom" placeholder="Entrez le nom" required>
+                                </div>
+                                <div class="validation-feedback" id="nom-feedback"></div>
+                            </div>
 
-                        <div class="form-group">
-                            <label for="telephone">Téléphone *</label>
-                            <input type="tel" id="telephone" name="telephone"
-                                   placeholder="77-123-4567" required>
-                        </div>
+                            <div class="form-group">
+                                <label for="prenom">
+                                    <i class="fa-solid fa-user-tag"></i>
+                                    Prénom *
+                                </label>
+                                <div class="input-icon">
+                                    <input type="text" id="prenom" name="prenom" placeholder="Entrez le prénom" required>
+                                </div>
+                                <div class="validation-feedback" id="prenom-feedback"></div>
+                            </div>
 
-                        <div class="form-group">
-                            <label for="email">Email *</label>
-                            <input type="email" id="email" name="email"
-                                   placeholder="conducteur@email.com" required>
-                        </div>
+                            <div class="form-group">
+                                <label for="permis">
+                                    <i class="fa-solid fa-id-card"></i>
+                                    N° de permis *
+                                </label>
+                                <div class="input-icon">
+                                    <input type="text" id="permis" name="permis" placeholder="Ex: B123456789" required>
+                                </div>
+                                <div class="validation-feedback" id="permis-feedback"></div>
+                            </div>
 
-                        <div class="form-group">
-                            <label for="experience">Années d'Expérience *</label>
-                            <input type="number" id="experience" name="experience"
-                                   min="0" max="50" required>
+                            <div class="form-group">
+                                <label for="telephone">
+                                    <i class="fa-solid fa-phone"></i>
+                                    Téléphone *
+                                </label>
+                                <div class="input-icon">
+                                    <input type="tel" id="telephone" name="telephone" placeholder="Ex: 771234567" required>
+                                </div>
+                                <div class="validation-feedback" id="telephone-feedback"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="fa-solid fa-envelope"></i>
+                                    Email *
+                                </label>
+                                <div class="input-icon">
+                                    <input type="email" id="email" name="email" placeholder="Ex: email@cargest.sn" required>
+                                </div>
+                                <div class="validation-feedback" id="email-feedback"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="experience">
+                                    <i class="fa-solid fa-medal"></i>
+                                    Expérience (années) *
+                                </label>
+                                <div class="input-icon">
+                                    <input type="number" id="experience" name="experience" placeholder="Nombre d'années" min="0" max="50" required>
+                                </div>
+                                <div class="validation-feedback" id="experience-feedback"></div>
+
+                            </div>
                         </div>
 
                         <div class="form-actions">
-                            <button type="submit" class="btn">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fa-solid fa-save"></i> Enregistrer
                             </button>
                             <a href="{{ url_for('liste_conducteurs') }}" class="btn btn-secondary">
-                                <i class="fa-solid fa-arrow-left"></i> Retour
+                                <i class="fa-solid fa-arrow-left"></i> Retourner à la liste
                             </a>
                         </div>
                     </form>
@@ -84,11 +600,125 @@
         </section>
     </main>
 
-    <footer>
+      <!-- Footer -->
+    <footer id="contact">
         <div class="container">
-            <p>&copy; 2025 CarGest - Projet Python de Gestion de Flotte</p>
-            <p>Développé par SARR et SEYE pour votre cours de Python</p>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fa-solid fa-car"></i> CarGest</h3>
+                    <p>La solution de référence pour la gestion intelligente des flottes de véhicules. Simplifiez vos opérations et optimisez vos coûts.</p>
+                </div>
+
+                <div class="footer-section" id="about">
+                    <h3>À propos</h3>
+                    <ul>
+                        <li><a href="#">Notre histoire</a></li>
+                        <li><a href="#">Équipe</a></li>
+                        <li><a href="#">Carrières</a></li>
+                        <li><a href="#">Presse</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Centre d'aide</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Tutoriels</a></li>
+                        <li><a href="#">Support technique</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p><i class="fa-solid fa-envelope"></i> contact@cargest.com</p>
+                    <p><i class="fa-solid fa-phone"></i> +221 338564433</p>
+                    <p><i class="fa-solid fa-map-marker-alt"></i> Dakar, Sénégal</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 CarGest - Développé par SARR et SEYE. Tous droits réservés.</p>
+            </div>
         </div>
     </footer>
+
+    <script>
+        // Validation en temps réel
+        const form = document.getElementById('driverForm');
+        const inputs = form.querySelectorAll('input[required]');
+
+        inputs.forEach(input => {
+            input.addEventListener('input', validateField);
+            input.addEventListener('blur', validateField);
+        });
+
+        function validateField(e) {
+            const field = e.target;
+            const fieldName = field.name;
+            const value = field.value.trim();
+            const feedback = document.getElementById(fieldName + '-feedback');
+
+            let isValid = true;
+            let message = '';
+
+
+            // Appliquer les styles
+            field.classList.remove('valid', 'invalid');
+            feedback.classList.remove('show', 'valid', 'invalid');
+
+            if (value) {
+                field.classList.add(isValid ? 'valid' : 'invalid');
+                feedback.classList.add('show', isValid ? 'valid' : 'invalid');
+                feedback.textContent = message;
+            }
+        }
+
+        // Validation du formulaire à la soumission
+        form.addEventListener('submit', function(e) {
+            let isFormValid = true;
+            inputs.forEach(input => {
+                const event = new Event('blur');
+                input.dispatchEvent(event);
+                if (input.classList.contains('invalid') || !input.value.trim()) {
+                    isFormValid = false;
+                }
+            });
+
+            if (!isFormValid) {
+                e.preventDefault();
+                alert('Veuillez corriger les erreurs dans le formulaire');
+            } else {
+                // Animation de chargement
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...';
+                submitBtn.disabled = true;
+            }
+        });
+
+        // Animation au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                setTimeout(() => {
+                    group.style.animation = `fadeInUp 0.6s ease ${index * 0.1}s both`;
+                }, 100);
+            });
+        });
+
+        // Effet de focus amélioré
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.parentElement.style.transition = 'transform 0.2s ease';
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
 </body>
 </html>

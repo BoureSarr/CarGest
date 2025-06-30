@@ -4,96 +4,359 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - CarGest</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-</head>
-<body class="auth-page">
-    <div class="auth-container">
-        <div class="auth-card">
-            <!-- Logo et titre -->
-            <div class="auth-header">
-                <div class="logo-large">
-                    <i class="fa-solid fa-car"></i>
-                    <h1>CarGest</h1>
-                </div>
-                <p class="subtitle">Système de Gestion de Flotte</p>
-            </div>
-
-            <!-- Messages flash -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                <i class="fa-solid fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'times-circle' }}"></i>
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-
-            <!-- Formulaire de connexion -->
-            <form method="POST" class="auth-form">
-                <h2><i class="fa-solid fa-sign-in-alt"></i> Connexion</h2>
-
-                <div class="form-group">
-                    <label for="username">
-                        <i class="fa-solid fa-user"></i> Nom d'utilisateur
-                    </label>
-                    <input type="text" id="username" name="username" required
-                           placeholder="Entrez votre nom d'utilisateur">
-                </div>
-
-                <div class="form-group">
-                    <label for="password">
-                        <i class="fa-solid fa-lock"></i> Mot de passe
-                    </label>
-                    <input type="password" id="password" name="password" required
-                           placeholder="Entrez votre mot de passe">
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-full">
-                    <i class="fa-solid fa-sign-in-alt"></i> Se connecter
-                </button>
-            </form>
-
-            <!-- Lien vers l'inscription -->
-            <div class="auth-footer">
-                <p>Pas encore de compte ?</p>
-                <a href="{{ url_for('register') }}" class="btn btn-outline">
-                    <i class="fa-solid fa-user-plus"></i> Créer un compte
-                </a>
-            </div>
-
-
-        </div>
-    </div>
 
     <style>
-        .auth-page {
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header identique à la page d'accueil */
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .logo i {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d) !important;
+            color: white !important;
+            font-weight: 600;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(45deg, #44a08d, #4ecdc4) !important;
+            transform: translateY(-3px);
+        }
+
+        /* Section principale */
+        main {
+            padding-top: 80px;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
         }
 
-        .auth-container {
+        .register-section {
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 0 20px;
         }
 
-        .auth-card {
+        .register-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .register-header .logo-large {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .register-header .logo-large i {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .register-header h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .register-header .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin: 0.5rem 0 0 0;
+            font-weight: 300;
+        }
+
+        .form-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form-title i {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 0.5rem;
+        }
+
+        /* Messages flash */
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #2e7d32;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(244, 67, 54, 0.1);
+            color: #c62828;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #f57c00;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        /* Formulaire */
+        .register-form {
+            width: 100%;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .form-group label i {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 0.5rem;
+            width: 16px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 2rem;
-            animation: slideUp 0.5s ease-out;
         }
 
-        @keyframes slideUp {
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Footer du formulaire */
+        .register-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .register-footer p {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        .login-link {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .login-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .home-link {
+            color: #666;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 20px;
+        }
+
+        .home-link:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -104,186 +367,183 @@
             }
         }
 
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2rem;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .register-card {
+                margin: 1rem;
+                padding: 2rem;
+            }
+
+            .register-header h1 {
+                font-size: 2rem;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .form-row .form-group {
+                margin-bottom: 1.5rem;
+            }
         }
 
-        .logo-large {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
+        @media (max-width: 480px) {
+            .register-card {
+                padding: 1.5rem;
+            }
 
-        .logo-large i {
-            font-size: 2.5rem;
-            color: #007bff;
-        }
+            .register-header .logo-large i {
+                font-size: 2rem;
+            }
 
-        .logo-large h1 {
-            font-size: 2.5rem;
-            color: #333;
-            margin: 0;
-            font-weight: 700;
-        }
-
-        .subtitle {
-            color: #666;
-            font-size: 0.95rem;
-            margin: 0;
-        }
-
-        .auth-form h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-
-        .auth-form h2 i {
-            color: #007bff;
-            margin-right: 0.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-group label i {
-            color: #007bff;
-            margin-right: 0.5rem;
-            width: 16px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
-        }
-
-        .btn-full {
-            width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: #007bff;
-            border: 2px solid #007bff;
-            border-radius: 6px;
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline:hover {
-            background: #007bff;
-            color: white;
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .auth-footer p {
-            margin-bottom: 1rem;
-            color: #666;
-        }
-
-        .demo-account {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            border-left: 4px solid #007bff;
-        }
-
-        .demo-account h4 {
-            margin: 0 0 0.5rem 0;
-            color: #007bff;
-            font-size: 0.9rem;
-        }
-
-        .demo-account p {
-            margin: 0.25rem 0;
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .flash-messages {
-            margin-bottom: 1.5rem;
-        }
-
-        .alert {
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+            .register-header h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <nav class="container">
+            <div class="logo">
+                <i class="fa-solid fa-car"></i> CarGest
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">Fonctionnalités</a></li>
+                <li><a href="#how-it-works">Comment ça marche</a></li>
+                <li><a href="#about">À propos</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="{{ url_for('register') }}" class="login-btn">
+                    <i class="fa-solid fa-user-plus"></i>
+                    S'inscrire
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="register-section">
+            <div class="register-card">
+                <!-- En-tête -->
+                <div class="register-header">
+                    <div class="logo-large">
+                        <i class="fa-solid fa-car"></i>
+                        <h1>CarGest</h1>
+                    </div>
+                    <p class="subtitle">Bienvenue de retour, connectez-vous à votre compte</p>
+                </div>
+
+                <!-- Messages flash -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    <i class="fa-solid fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'times-circle' }}"></i>
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Formulaire de connexion -->
+                <form method="POST" class="register-form">
+                    <h2 class="form-title">
+                        <i class="fa-solid fa-sign-in-alt"></i>
+                        Connexion
+                    </h2>
+
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fa-solid fa-user"></i> Nom d'utilisateur
+                        </label>
+                        <input type="text" id="username" name="username" required placeholder="Nom d'utilisateur">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fa-solid fa-lock"></i> Mot de passe
+                        </label>
+                        <input type="password" id="password" name="password" required placeholder="Votre mot de passe">
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Se connecter
+                    </button>
+                </form>
+
+                <!-- Footer -->
+                <div class="register-footer">
+                    <p>Vous n’avez pas encore de compte ?</p>
+                    <a href="{{ url_for('register') }}" class="login-link">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Créer un compte
+                    </a>
+                    <br>
+                    <a href="{{ url_for('home') }}" class="home-link">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Retour à l'accueil
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.style.background = 'rgba(255, 255, 255, 0.95)';
+                    header.style.backdropFilter = 'blur(20px)';
+                    header.querySelector('.logo').style.color = '#667eea';
+                    header.querySelectorAll('.nav-links a').forEach(link => {
+                        if (!link.classList.contains('login-btn')) {
+                            link.style.color = '#333';
+                        }
+                    });
+                } else {
+                    header.style.background = 'rgba(255, 255, 255, 0.1)';
+                    header.style.backdropFilter = 'blur(10px)';
+                    header.querySelector('.logo').style.color = 'white';
+                    header.querySelectorAll('.nav-links a').forEach(link => {
+                        if (!link.classList.contains('login-btn')) {
+                            link.style.color = 'white';
+                        }
+                    });
+                }
+            });
+
+            // Animation des champs au focus
+            document.querySelectorAll('.form-group input').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                    this.parentElement.style.transition = 'transform 0.2s ease';
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+
+            // Effet de chargement sur le bouton
+            document.querySelector('.register-form').addEventListener('submit', function() {
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
+                submitBtn.disabled = true;
+            });
+        });
+    </script>
 </body>
 </html>
