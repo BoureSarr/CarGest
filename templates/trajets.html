@@ -570,7 +570,6 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Véhicule</th>
                                     <th>Conducteur</th>
                                     <th>Itinéraire</th>
@@ -583,7 +582,7 @@
                             <tbody>
                                 {% for trajet in trajets %}
                                 <tr>
-                                    <td><strong>#{{ trajet.id }}</strong></td>
+
                                     <td>
                                         {% set vehicule = vehicules|selectattr('id', 'equalto', trajet.vehicule_id)|first %}
                                         {% if vehicule %}
