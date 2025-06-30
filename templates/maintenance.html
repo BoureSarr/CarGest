@@ -437,7 +437,7 @@
                             <thead>
                                 <tr>
 
-                                    <th>ID</th>
+
                                     <th>Véhicule</th>
                                     <th>Type</th>
                                     <th>Description</th>
@@ -450,7 +450,7 @@
                             <tbody>
                                 {% for maintenance in maintenances %}
                                 <tr>
-                                    <td><strong>{{ maintenance.id }}</strong></td>
+
                                     <td>
                                         {% for vehicule in vehicules %}
                                             {% if vehicule.id == maintenance.vehicule_id %}
