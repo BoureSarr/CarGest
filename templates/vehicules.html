@@ -420,7 +420,6 @@
                             <thead>
                                 <tr>
 
-                                    <th>ID</th>
                                     <th>Marque</th>
                                     <th>Modèle</th>
                                     <th>Immatriculation</th>
@@ -433,7 +432,7 @@
                             <tbody>
                                 {% for vehicule in vehicules %}
                                 <tr>
-                                    <td>{{ vehicule.id }}</td>
+
                                     <td>{{ vehicule.marque }}</td>
                                     <td>{{ vehicule.modele }}</td>
                                     <td><strong>{{ vehicule.immatriculation }}</strong></td>
